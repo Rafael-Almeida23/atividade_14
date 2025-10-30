@@ -8,13 +8,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sector = trim($_POST['sector']);
     $priority = $_POST['priority'];
     $user_id = $_POST['user_id'];
+    $kanban_id = $_POST['kanban_id'];
 
-    if (empty($description) || empty($sector) || empty($priority) || empty($user_id)) {
+    if (empty($description) || empty($sector) || empty($priority) || empty($user_id) || empty($kanban_id)) {
         $message = "Todos os campos são obrigatórios.";
     } else {
         $status = 'to_do';
-        $stmt = $conn->prepare("INSERT INTO tasks (description, sector, priority, user_id, status) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssds", $description, $sector, $priority, $user_id, $status);
+        $stmt = $conn->prepare("INSERT INTO tasks (kanban_id, description, sector, priority, user_id, status) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssis", $kanban_id, $description, $sector, $priority, $user_id, $status);
 
         if ($stmt->execute()) {
             $message = "Tarefa cadastrada com sucesso.";
@@ -28,6 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Buscar usuários para o select
 $users = $conn->query("SELECT id, name FROM users");
+
+// Buscar kanbans para o select
+$kanbans = $conn->query("SELECT id, name FROM kanban");
 
 $conn->close();
 ?>
@@ -70,6 +74,15 @@ $conn->close();
                             <option value="">Selecione</option>
                             <?php while ($user = $users->fetch_assoc()): ?>
                                 <option value="<?php echo $user['id']; ?>"><?php echo $user['name']; ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="kanban_id" class="form-label">Kanban:</label>
+                        <select id="kanban_id" name="kanban_id" class="form-select" required>
+                            <option value="">Selecione</option>
+                            <?php while ($kanban = $kanbans->fetch_assoc()): ?>
+                                <option value="<?php echo $kanban['id']; ?>"><?php echo $kanban['name']; ?></option>
                             <?php endwhile; ?>
                         </select>
                     </div>
