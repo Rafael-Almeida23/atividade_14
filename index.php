@@ -15,7 +15,7 @@
                 <div class="d-grid gap-3">
                     <a href="register_user.php" class="btn btn-success btn-lg">Cadastro de Usuário</a>
                     <a href="register_task.php" class="btn btn-success btn-lg">Cadastro de Tarefa</a>
-                    <a href="manage_tasks.php" class="btn btn-success btn-lg">Gerenciamento de Tarefas</a>
+                    <a href="gerenciar_tasks.php" class="btn btn-success btn-lg">Gerenciamento de Tarefas</a>
                 </div>
             </div>
         </div>

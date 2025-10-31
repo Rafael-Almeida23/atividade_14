@@ -12,16 +12,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "E-mail inválido.";
     } else {
-        $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-        $stmt->bind_param("ss", $name, $email);
+        // Verificar se o e-mail já existe
+        $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $check_stmt->bind_param("s", $email);
+        $check_stmt->execute();
+        $check_stmt->store_result();
 
-        if ($stmt->execute()) {
-            $message = "Cadastro concluído com sucesso.";
+        if ($check_stmt->num_rows > 0) {
+            $message = "Este e-mail já está cadastrado. Por favor, use um e-mail diferente.";
         } else {
-            $message = "Erro ao cadastrar: " . $stmt->error;
+            $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+            $stmt->bind_param("ss", $name, $email);
+
+            if ($stmt->execute()) {
+                $message = "Cadastro concluído com sucesso.";
+            } else {
+                $message = "Erro ao cadastrar: " . $stmt->error;
+            }
+
+            $stmt->close();
         }
 
-        $stmt->close();
+        $check_stmt->close();
     }
 }
 

@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt->execute()) {
             $message = "Tarefa atualizada com sucesso.";
-            header("Location: manage_tasks.php");
+            header("Location: gerenciar_tasks.php");
             exit();
         } else {
             $message = "Erro ao atualizar tarefa: " . $stmt->error;
@@ -97,7 +97,7 @@ $conn->close();
                     </div>
                 <?php endif; ?>
                 <div class="text-center mt-3">
-                    <a href="manage_tasks.php" class="btn btn-secondary">Voltar ao Gerenciamento</a>
+                    <a href="gerenciar_tasks.php" class="btn btn-secondary">Voltar ao Gerenciamento</a>
                 </div>
             </div>
         </div>

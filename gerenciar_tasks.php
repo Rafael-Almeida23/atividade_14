@@ -9,7 +9,7 @@ if (isset($_POST['update_status'])) {
     $stmt->bind_param("si", $status, $task_id);
     $stmt->execute();
     $stmt->close();
-    header("Location: manage_tasks.php");
+    header("Location: gerenciar_tasks.php");
     exit();
 }
 
@@ -20,7 +20,7 @@ if (isset($_POST['delete_task'])) {
     $stmt->bind_param("i", $task_id);
     $stmt->execute();
     $stmt->close();
-    header("Location: manage_tasks.php");
+    header("Location: gerenciar_tasks.php");
     exit();
 }
 
