@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include 'db.php';
 
 $message = '';
 
@@ -8,12 +8,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sector = trim($_POST['sector']);
     $priority = $_POST['priority'];
     $user_id = $_POST['user_id'];
-    $kanban_id = $_POST['kanban_id'];
+    $status = $_POST['status'];
+    $kanban_id = NULL;
 
-    if (empty($description) || empty($sector) || empty($priority) || empty($user_id) || empty($kanban_id)) {
+    if (empty($description) || empty($sector) || empty($priority) || empty($user_id) || empty($status)) {
         $message = "Todos os campos são obrigatórios.";
     } else {
-        $status = 'to_do';
         $stmt = $conn->prepare("INSERT INTO tasks (kanban_id, description, sector, priority, user_id, status) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("isssis", $kanban_id, $description, $sector, $priority, $user_id, $status);
 
@@ -29,9 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Buscar usuários para o select
 $users = $conn->query("SELECT id, name FROM users");
-
-// Buscar kanbans para o select
-$kanbans = $conn->query("SELECT id, name FROM kanban");
 
 $conn->close();
 ?>
@@ -63,9 +60,9 @@ $conn->close();
                         <label for="priority" class="form-label">Prioridade:</label>
                         <select id="priority" name="priority" class="form-select" required>
                             <option value="">Selecione</option>
-                            <option value="low">Baixa</option>
-                            <option value="medium">Média</option>
-                            <option value="high">Alta</option>
+                            <option value="Baixa">Baixa</option>
+                            <option value="Média">Média</option>
+                            <option value="Alta">Alta</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -78,12 +75,12 @@ $conn->close();
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="kanban_id" class="form-label">Kanban:</label>
-                        <select id="kanban_id" name="kanban_id" class="form-select" required>
+                        <label for="status" class="form-label">Status:</label>
+                        <select id="status" name="status" class="form-select" required>
                             <option value="">Selecione</option>
-                            <?php while ($kanban = $kanbans->fetch_assoc()): ?>
-                                <option value="<?php echo $kanban['id']; ?>"><?php echo $kanban['name']; ?></option>
-                            <?php endwhile; ?>
+                            <option value="to_do">A fazer</option>
+                            <option value="doing">Fazendo</option>
+                            <option value="done">Pronto</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-success w-100">Cadastrar Tarefa</button>

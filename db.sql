@@ -17,12 +17,11 @@ CREATE TABLE kanban (
 
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    kanban_id INT NOT NULL,
+    kanban_id INT NULL,
     description TEXT NOT NULL,
     sector VARCHAR(255) NOT NULL,
     priority ENUM('low', 'medium', 'high') NOT NULL,
     user_id INT NOT NULL,
     status ENUM('to_do', 'doing', 'done') NOT NULL,
-    FOREIGN KEY (kanban_id) REFERENCES kanban(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

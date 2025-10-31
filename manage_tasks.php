@@ -1,10 +1,10 @@
 <?php
-include 'config.php';
+include 'db.php';
 
 // Atualizar status da tarefa
 if (isset($_POST['update_status'])) {
     $task_id = $_POST['task_id'];
-    $status = $_POST['status'];
+    $status = $_POST['update_status'];
     $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
     $stmt->bind_param("si", $status, $task_id);
     $stmt->execute();
@@ -62,7 +62,7 @@ while ($task = $tasks->fetch_assoc()) {
                                     <p class="card-text">Setor: <?php echo htmlspecialchars($task['sector']); ?></p>
                                     <p class="card-text">Prioridade: <?php echo htmlspecialchars($task['priority']); ?></p>
                                     <p class="card-text">Usuário: <?php echo htmlspecialchars($task['user_name']); ?></p>
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex flex-wrap justify-content-center gap-1">
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
                                             <button type="submit" name="update_status" value="doing" class="btn btn-success btn-sm">Mover para Fazendo</button>
@@ -92,7 +92,7 @@ while ($task = $tasks->fetch_assoc()) {
                                     <p class="card-text">Setor: <?php echo htmlspecialchars($task['sector']); ?></p>
                                     <p class="card-text">Prioridade: <?php echo htmlspecialchars($task['priority']); ?></p>
                                     <p class="card-text">Usuário: <?php echo htmlspecialchars($task['user_name']); ?></p>
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex flex-wrap justify-content-center gap-1">
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
                                             <button type="submit" name="update_status" value="to_do" class="btn btn-secondary btn-sm">Mover para A Fazer</button>
@@ -123,7 +123,7 @@ while ($task = $tasks->fetch_assoc()) {
                                     <p class="card-text">Setor: <?php echo htmlspecialchars($task['sector']); ?></p>
                                     <p class="card-text">Prioridade: <?php echo htmlspecialchars($task['priority']); ?></p>
                                     <p class="card-text">Usuário: <?php echo htmlspecialchars($task['user_name']); ?></p>
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex flex-wrap justify-content-center gap-1">
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
                                             <button type="submit" name="update_status" value="doing" class="btn btn-warning btn-sm">Mover para Fazendo</button>
