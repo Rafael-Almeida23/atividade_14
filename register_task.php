@@ -60,9 +60,9 @@ $conn->close();
                         <label for="priority" class="form-label">Prioridade:</label>
                         <select id="priority" name="priority" class="form-select" required>
                             <option value="">Selecione</option>
-                            <option value="Baixa">Baixa</option>
-                            <option value="Média">Média</option>
-                            <option value="Alta">Alta</option>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
                         </select>
                     </div>
                     <div class="mb-3">
