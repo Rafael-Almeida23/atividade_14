@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+    header("Location: gerenciar_tasks.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -14,8 +22,7 @@
                 <h1 class="mb-4">Sistema de Gerenciamento Kanban</h1>
                 <div class="d-grid gap-3">
                     <a href="register_user.php" class="btn btn-success btn-lg">Cadastro de Usuário</a>
-                    <a href="register_task.php" class="btn btn-success btn-lg">Cadastro de Tarefa</a>
-                    <a href="gerenciar_tasks.php" class="btn btn-success btn-lg">Gerenciamento de Tarefas</a>
+                    <a href="login.php" class="btn btn-primary btn-lg">Login</a>
                 </div>
             </div>
         </div>

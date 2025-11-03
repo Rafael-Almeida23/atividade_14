@@ -1,12 +1,13 @@
 <?php
 include 'db.php';
+include 'session_check.php';
 
 // Atualizar status da tarefa
 if (isset($_POST['update_status'])) {
     $task_id = $_POST['task_id'];
     $status = $_POST['update_status'];
-    $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
-    $stmt->bind_param("si", $status, $task_id);
+    $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("sii", $status, $task_id, $_SESSION['user_id']);
     $stmt->execute();
     $stmt->close();
     header("Location: gerenciar_tasks.php");
@@ -16,22 +17,25 @@ if (isset($_POST['update_status'])) {
 // Excluir tarefa
 if (isset($_POST['delete_task'])) {
     $task_id = $_POST['task_id'];
-    $stmt = $conn->prepare("DELETE FROM tasks WHERE id = ?");
-    $stmt->bind_param("i", $task_id);
+    $stmt = $conn->prepare("DELETE FROM tasks WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $task_id, $_SESSION['user_id']);
     $stmt->execute();
     $stmt->close();
     header("Location: gerenciar_tasks.php");
     exit();
 }
 
-// Buscar tarefas
-$tasks = $conn->query("SELECT t.id, t.description, t.sector, t.priority, t.status, u.name as user_name FROM tasks t JOIN users u ON t.user_id = u.id ORDER BY t.id");
+// Buscar tarefas do usuário logado
+$tasks = $conn->prepare("SELECT t.id, t.description, t.sector, t.priority, t.status, t.cep, u.name as user_name FROM tasks t JOIN users u ON t.user_id = u.id WHERE t.user_id = ? ORDER BY t.id");
+$tasks->bind_param("i", $_SESSION['user_id']);
+$tasks->execute();
+$result = $tasks->get_result();
 
 $conn->close();
 
 // Organizar tarefas por status
 $columns = ['to_do' => [], 'doing' => [], 'done' => []];
-while ($task = $tasks->fetch_assoc()) {
+while ($task = $result->fetch_assoc()) {
     $columns[$task['status']][] = $task;
 }
 ?>
@@ -142,6 +146,8 @@ while ($task = $tasks->fetch_assoc()) {
             </div>
         </div>
         <div class="text-center mt-4">
+            <a href="register_task.php" class="btn btn-success me-2">Cadastrar Nova Tarefa</a>
+            <a href="logout.php" class="btn btn-danger me-2">Logout</a>
             <a href="index.php" class="btn btn-secondary">Voltar ao Menu</a>
         </div>
     </div>

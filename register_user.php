@@ -6,11 +6,14 @@ $message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
+    $password = $_POST['password'];
 
-    if (empty($name) || empty($email)) {
-        $message = "Nome e e-mail são obrigatórios.";
+    if (empty($name) || empty($email) || empty($password)) {
+        $message = "Nome, e-mail e senha são obrigatórios.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "E-mail inválido.";
+    } elseif (strlen($password) < 6) {
+        $message = "A senha deve ter pelo menos 6 caracteres.";
     } else {
         // Verificar se o e-mail já existe
         $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
@@ -21,8 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($check_stmt->num_rows > 0) {
             $message = "Este e-mail já está cadastrado. Por favor, use um e-mail diferente.";
         } else {
-            $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-            $stmt->bind_param("ss", $name, $email);
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $name, $email, $hashed_password);
 
             if ($stmt->execute()) {
                 $message = "Cadastro concluído com sucesso.";
@@ -62,6 +66,10 @@ $conn->close();
                     <div class="mb-3">
                         <label for="email" class="form-label">E-mail:</label>
                         <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Senha:</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
                     </div>
                     <button type="submit" class="btn btn-success w-100">Cadastrar</button>
                 </form>

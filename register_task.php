@@ -1,5 +1,6 @@
 <?php
 include 'db.php';
+include 'session_check.php';
 
 $message = '';
 
@@ -7,15 +8,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = trim($_POST['description']);
     $sector = trim($_POST['sector']);
     $priority = $_POST['priority'];
-    $user_id = $_POST['user_id'];
+    $user_id = $_SESSION['user_id'];
     $status = $_POST['status'];
     $kanban_id = NULL;
+    $cep = !empty($_POST['cep']) ? trim($_POST['cep']) : NULL;
 
-    if (empty($description) || empty($sector) || empty($priority) || empty($user_id) || empty($status)) {
-        $message = "Todos os campos são obrigatórios.";
+    if (empty($description) || empty($sector) || empty($priority) || empty($status)) {
+        $message = "Descrição, setor, prioridade e status são obrigatórios.";
     } else {
-        $stmt = $conn->prepare("INSERT INTO tasks (kanban_id, description, sector, priority, user_id, status) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssis", $kanban_id, $description, $sector, $priority, $user_id, $status);
+        $stmt = $conn->prepare("INSERT INTO tasks (kanban_id, description, sector, priority, user_id, status, cep) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssiss", $kanban_id, $description, $sector, $priority, $user_id, $status, $cep);
 
         if ($stmt->execute()) {
             $message = "Tarefa cadastrada com sucesso.";
@@ -26,9 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 }
-
-// Buscar usuários para o select
-$users = $conn->query("SELECT id, name FROM users");
 
 $conn->close();
 ?>
@@ -41,6 +40,35 @@ $conn->close();
     <title>Cadastro de Tarefa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('consultar-cep').addEventListener('click', function() {
+                var cep = document.getElementById('cep').value;
+                if (cep) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'sugestao.php?cep=' + cep, true);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState == 4) {
+                            if (xhr.status == 200) {
+                                var data = JSON.parse(xhr.responseText);
+                                if (data.error) {
+                                    alert(data.error);
+                                } else {
+                                    var endereco = data.logradouro + ', ' + data.bairro + ', ' + data.localidade + ' - ' + data.uf;
+                                    document.getElementById('description').value = endereco;
+                                }
+                            } else {
+                                alert('Erro ao consultar CEP. Tente novamente.');
+                            }
+                        }
+                    };
+                    xhr.send();
+                } else {
+                    alert('Digite um CEP válido.');
+                }
+            });
+        });
+    </script>
 </head>
 <body class="bg-light">
     <div class="container mt-5">
@@ -66,13 +94,9 @@ $conn->close();
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="user_id" class="form-label">Usuário:</label>
-                        <select id="user_id" name="user_id" class="form-select" required>
-                            <option value="">Selecione</option>
-                            <?php while ($user = $users->fetch_assoc()): ?>
-                                <option value="<?php echo $user['id']; ?>"><?php echo $user['name']; ?></option>
-                            <?php endwhile; ?>
-                        </select>
+                        <label for="cep" class="form-label">CEP (opcional):</label>
+                        <input type="text" id="cep" name="cep" class="form-control" placeholder="Digite o CEP">
+                        <button type="button" id="consultar-cep" class="btn btn-info mt-2">Consultar CEP</button>
                     </div>
                     <div class="mb-3">
                         <label for="status" class="form-label">Status:</label>

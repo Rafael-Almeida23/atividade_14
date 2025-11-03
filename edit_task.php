@@ -1,13 +1,14 @@
 <?php
 include 'db.php';
+include 'session_check.php';
 
 $message = '';
 $task = null;
 
 if (isset($_GET['id'])) {
     $task_id = $_GET['id'];
-    $stmt = $conn->prepare("SELECT * FROM tasks WHERE id = ?");
-    $stmt->bind_param("i", $task_id);
+    $stmt = $conn->prepare("SELECT * FROM tasks WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $task_id, $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
     $task = $result->fetch_assoc();
@@ -19,13 +20,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = trim($_POST['description']);
     $sector = trim($_POST['sector']);
     $priority = $_POST['priority'];
-    $user_id = $_POST['user_id'];
+    $user_id = $_SESSION['user_id'];
+    $cep = !empty($_POST['cep']) ? trim($_POST['cep']) : NULL;
 
-    if (empty($description) || empty($sector) || empty($priority) || empty($user_id)) {
-        $message = "Todos os campos são obrigatórios.";
+    if (empty($description) || empty($sector) || empty($priority)) {
+        $message = "Descrição, setor e prioridade são obrigatórios.";
     } else {
-        $stmt = $conn->prepare("UPDATE tasks SET description = ?, sector = ?, priority = ?, user_id = ? WHERE id = ?");
-        $stmt->bind_param("sssii", $description, $sector, $priority, $user_id, $task_id);
+        $stmt = $conn->prepare("UPDATE tasks SET description = ?, sector = ?, priority = ?, cep = ? WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("ssssii", $description, $sector, $priority, $cep, $task_id, $user_id);
 
         if ($stmt->execute()) {
             $message = "Tarefa atualizada com sucesso.";
@@ -79,12 +81,8 @@ $conn->close();
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="user_id" class="form-label">Usuário:</label>
-                            <select id="user_id" name="user_id" class="form-select" required>
-                                <?php while ($user = $users->fetch_assoc()): ?>
-                                    <option value="<?php echo $user['id']; ?>" <?php echo $task['user_id'] == $user['id'] ? 'selected' : ''; ?>><?php echo $user['name']; ?></option>
-                                <?php endwhile; ?>
-                            </select>
+                            <label for="cep" class="form-label">CEP (opcional):</label>
+                            <input type="text" id="cep" name="cep" value="<?php echo htmlspecialchars($task['cep'] ?? ''); ?>" class="form-control" placeholder="Digite o CEP">
                         </div>
                         <button type="submit" class="btn btn-success w-100">Atualizar Tarefa</button>
                     </form>
